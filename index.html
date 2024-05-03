@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>RANDOM JS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="mine.css">
+</head>
+<body>
+
+<style>
+     @font-face {
+            font-family: 'Ramona-Bold';
+            src: url('Ramona-Bold.ttf') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        h1, h2, h3, h4, h5, h6, p {
+            font-family: 'Ramona-Bold', sans-serif;
+        }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background: url('bg.jpg') no-repeat center center fixed;
+        background-size: cover;
+        font-family: Arial, sans-serif;
+    }
+
+    button:focus {
+        outline: none;
+    }
+
+    .start {
+        position: absolute;
+        top: calc(50% + 100px);
+        left: 50%;
+        background: #51D05E;
+        transform: translate(-50%, -50%);
+        width: 100px;
+        height: 25px;
+        border: 2px solid #4CBD58;
+        color: white;
+        font-weight: bold;
+        border-radius: 5px;
+        transition: 0.3s ease;
+        user-select: none;
+        cursor: pointer;
+        filter: drop-shadow(2px 2px 2px rgba(89, 217, 102, 0.2));
+    }
+
+    .start:hover {
+        background: #4CBD58;
+    }
+
+    .shadow {
+        position: absolute;
+        z-index: 2;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 10px;
+        border: 2px solid white;
+        width: 90%;
+        max-width: 400px;
+        height: 100px;
+        box-shadow: inset 0px 0px 20px 0px black;
+        display: none;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        text-align: center;
+    }
+
+    .random {
+        position: absolute;
+        overflow: hidden;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 10px;
+        width: 90%;
+        max-width: 400px;
+        height: 100px;
+        background: rgba(22, 29, 49, 0.8); /* Use rgba for background color with opacity */
+        display: none;
+    }
+
+    .cards {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 2000px;
+        height: 100%;
+        transition: 5s ease;
+    }
+
+    .cards > div {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        float: left;
+        font-family: sans-serif;
+        font-weight: bold;
+        font-size: 20px;
+        margin-top: 5px;
+        margin-left: 5px;
+        width: 100px;
+        height: 90px;
+        color: #6A6A6A;
+        background: white;
+        border-radius: 10px;
+    }
+
+    .result {
+        position: absolute;
+        z-index: 10;
+        left: 50%;
+        top: 0;
+        transform: translateX(-50%);
+        border: 10px solid transparent;
+        border-top: 20px solid #425DD8;
+        filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.5));
+    }
+
+    .access-code {
+        position: absolute;
+        top: calc(50% - 50px);
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .access-code input {
+        width: 150px;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    .error-message {
+        color: red;
+        margin-top: 10px;
+        display: none;
+    }
+
+    .whale-nft {
+        position: absolute;
+        top: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        color: white;
+        font-size: 24px;
+    }
+
+    .whale-nft img {
+        display: block;
+        margin: 0 auto;
+        width: 200px;
+        height: auto;
+    }
+
+    @media screen and (max-width: 500px) {
+        .start {
+            top: calc(50% + 50px);
+        }
+    }
+
+    @media screen and (max-width: 400px) {
+        .start {
+            top: calc(50% + 25px);
+        }
+    }
+</style>
+
+<div class="whale-nft">
+    <img src="hero.png" alt="Whale NFT Logo">
+    <p>Whale NFT</p>
+</div>
+
+<div class="access-code">
+    <input type="text" id="accessCode" placeholder="Enter Access Code">
+    <button onclick="checkAccess()">Enter</button>
+    <div class="error-message" id="errorMessage">Invalid access code. Please try again.</div>
+</div>
+<div class="shadow" id="shadowMessage">
+    You can only spin once in 7 days. Please wait for <span id="daysLeft"></span> more days.
+</div>
+<div class="random" id="randomMessage">
+    <div class="result"></div>
+    <div class="cards">
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>4</div>
+        <div>5</div>
+        <div>6</div>
+        <div>7</div>
+        <div>8</div>
+        <div>9</div>
+        <div>10</div>
+        <div>11</div>
+    </div>
+</div>
+<button class="start" id="startBtn" style="display: none;">START</button>
+
+<script>
+    var cards_block = document.querySelector('.cards');
+    var cards = document.querySelectorAll('.cards > div');
+    var startBtn = document.getElementById('startBtn');
+    var isAccessGranted = false;
+
+    function checkAccess() {
+        var accessCode = document.getElementById('accessCode').value;
+        if (accessCode === '1') { // Replace 'your_secret_code' with your actual access code
+            document.querySelector('.access-code').style.display = 'none';
+            document.querySelector('.shadow').style.display = 'none';
+            document.querySelector('.random').style.display = 'block';
+            startBtn.style.display = 'block';
+            isAccessGranted = true;
+        } else {
+            document.getElementById('errorMessage').style.display = 'block';
+        }
+    }
+
+    startBtn.addEventListener('click', function() {
+        if (isAccessGranted) {
+            if (localStorage.getItem('lastSpin')) {
+                var lastSpin = new Date(localStorage.getItem('lastSpin'));
+                var now = new Date();
+                var diffTime = Math.abs(now - lastSpin);
+                var diffDays = Math.ceil(diffTime / (60 * 60 * 60 * 24));
+                if (diffDays < 7) {
+                    document.getElementById('daysLeft').innerText = (7 - diffDays);
+                    document.getElementById('shadowMessage').style.display = 'block';
+                    return;
+                }
+            }
+
+            var random = Math.floor(Math.random() * 9); // От 0 до 8
+            cards_block.style.left = -random * 100 + 'px';
+            setTimeout(function() {
+                random++;
+                cards[random].style.background = '#7B90F7';
+                cards[random].style.color = 'white';
+            }, 10000);
+
+            localStorage.setItem('lastSpin', new Date());
+        }
+    });
+</script>
+
+</body>
+</html>
